@@ -203,6 +203,38 @@ export class AdminController {
     }
   }
 
+  static async reRenderTranscript(req: Request, res: Response<ApiResponse>) {
+    try {
+      const id = parseInt(req.params.id);
+
+      const video = await VideoModel.findById(id);
+      if (!video) {
+        return res.status(404).json({
+          success: false,
+          error: 'Video not found',
+        });
+      }
+
+      const io = (req.app as any).get('io');
+
+      // Non-blocking — processing continues in background
+      VideoService.reRenderTranscriptAndSummary(id, io).catch((err) => {
+        logger.error(`Re-render failed for video ${id}:`, err);
+      });
+
+      res.json({
+        success: true,
+        message: 'Re-render started successfully',
+      });
+    } catch (error: any) {
+      logger.error('Re-render transcript error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
   static async getStats(req: Request, res: Response<ApiResponse>) {
     try {
       const videoCount = await VideoModel.count();

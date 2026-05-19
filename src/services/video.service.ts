@@ -247,6 +247,24 @@ export class VideoService {
     return await VideoModel.findAll(limit, offset);
   }
 
+  static async reRenderTranscriptAndSummary(videoId: number, io?: any): Promise<void> {
+    const video = await VideoModel.findById(videoId);
+    if (!video) {
+      throw new Error('Video not found');
+    }
+
+    // Delete existing transcription and summary records
+    await TranscriptionModel.delete(videoId);
+    await SummaryModel.delete(videoId);
+
+    // Reset statuses to pending
+    await VideoModel.updateStatus(videoId, 'transcription_status', 'pending');
+    await VideoModel.updateStatus(videoId, 'summary_status', 'pending');
+
+    // Kick off async processing (non-blocking)
+    this.processTranscriptionAsync(videoId, video.s3_url, io);
+  }
+
   static async deleteVideo(id: number): Promise<void> {
     const video = await VideoModel.findById(id);
 

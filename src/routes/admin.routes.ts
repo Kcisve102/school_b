@@ -25,6 +25,7 @@ router.post(
 );
 
 router.delete('/videos/:id', requireAdmin, AdminController.deleteVideo);
+router.post('/videos/:id/re-render', requireAdmin, AdminController.reRenderTranscript);
 router.put(
   '/videos/:id',
   requireAdmin,
