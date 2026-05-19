@@ -1,0 +1,86 @@
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import pool from '../config/database';
+import { Video } from '../types';
+
+export interface VideoCreateData {
+  title: string;
+  description?: string;
+  uploaded_by: number;
+  s3_key: string;
+  s3_url: string;
+  original_filename?: string;
+  file_size?: number;
+  duration?: number;
+  mime_type?: string;
+  upload_type: 'file' | 'link';
+  original_url?: string;
+}
+
+export class VideoModel {
+  static async create(data: VideoCreateData): Promise<number> {
+    const [result] = await pool.execute<ResultSetHeader>(
+      `INSERT INTO videos (title, description, uploaded_by, s3_key, s3_url, original_filename,
+       file_size, duration, mime_type, upload_type, original_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.title,
+        data.description || null,
+        data.uploaded_by,
+        data.s3_key,
+        data.s3_url,
+        data.original_filename || null,
+        data.file_size || null,
+        data.duration || null,
+        data.mime_type || null,
+        data.upload_type,
+        data.original_url || null,
+      ]
+    );
+    return result.insertId;
+  }
+
+  static async findById(id: number): Promise<Video | null> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT * FROM videos WHERE id = ?',
+      [id]
+    );
+    return rows.length > 0 ? (rows[0] as Video) : null;
+  }
+
+  static async findAll(limit: number = 50, offset: number = 0): Promise<Video[]> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT * FROM videos ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [limit, offset]
+    );
+    return rows as Video[];
+  }
+
+  static async updateStatus(
+    id: number,
+    field: 'compression_status' | 'transcription_status' | 'summary_status',
+    status: 'pending' | 'processing' | 'completed' | 'failed'
+  ): Promise<void> {
+    await pool.execute(
+      `UPDATE videos SET ${field} = ? WHERE id = ?`,
+      [status, id]
+    );
+  }
+
+  static async updateDuration(id: number, duration: number): Promise<void> {
+    await pool.execute(
+      'UPDATE videos SET duration = ? WHERE id = ?',
+      [duration, id]
+    );
+  }
+
+  static async delete(id: number): Promise<void> {
+    await pool.execute('DELETE FROM videos WHERE id = ?', [id]);
+  }
+
+  static async count(): Promise<number> {
+    const [rows] = await pool.execute<RowDataPacket[]>('SELECT COUNT(*) as total FROM videos');
+    return rows[0].total;
+  }
+}
+
+export default VideoModel;
