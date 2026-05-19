@@ -81,6 +81,36 @@ export class VideoModel {
     const [rows] = await pool.execute<RowDataPacket[]>('SELECT COUNT(*) as total FROM videos');
     return rows[0].total;
   }
+
+  static async update(
+    id: number,
+    data: { title?: string; description?: string }
+  ): Promise<void> {
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    if (data.title !== undefined) {
+      updates.push('title = ?');
+      values.push(data.title);
+    }
+
+    if (data.description !== undefined) {
+      updates.push('description = ?');
+      values.push(data.description);
+    }
+
+    if (updates.length === 0) {
+      return;
+    }
+
+    updates.push('updated_at = NOW()');
+    values.push(id);
+
+    await pool.execute(
+      `UPDATE videos SET ${updates.join(', ')} WHERE id = ?`,
+      values
+    );
+  }
 }
 
 export default VideoModel;

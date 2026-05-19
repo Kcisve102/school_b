@@ -93,6 +93,35 @@ export class AdminController {
     }
   }
 
+  static async updateVideo(req: Request, res: Response<ApiResponse>) {
+    try {
+      const id = parseInt(req.params.id);
+      const { title, description } = req.body;
+
+      const video = await VideoModel.findById(id);
+
+      if (!video) {
+        return res.status(404).json({
+          success: false,
+          error: 'Video not found',
+        });
+      }
+
+      await VideoModel.update(id, { title, description });
+
+      res.json({
+        success: true,
+        message: 'Video updated successfully',
+      });
+    } catch (error: any) {
+      logger.error('Update video error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
   static async getUsers(req: Request, res: Response<ApiResponse>) {
     try {
       const users = await UserModel.findAll();

@@ -10,7 +10,7 @@ export const generalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  validate: { trustProxy: false }, // Disable the trust proxy validation warning
+  validate: false, // Disable all validation warnings
 });
 
 export const authLimiter = rateLimit({

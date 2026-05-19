@@ -48,6 +48,16 @@ export const videoLinkSchema = Joi.object({
   }),
 });
 
+export const videoUpdateSchema = Joi.object({
+  title: Joi.string().min(3).max(255).optional().messages({
+    'string.min': 'Title must be at least 3 characters long',
+    'string.max': 'Title cannot exceed 255 characters',
+  }),
+  description: Joi.string().max(5000).allow('', null).optional(),
+}).min(1).messages({
+  'object.min': 'At least one field (title or description) must be provided',
+});
+
 export const validateRequest = (schema: Joi.ObjectSchema) => {
   return (req: any, res: any, next: any) => {
     const { error } = schema.validate(req.body, { abortEarly: false });

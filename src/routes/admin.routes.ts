@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller';
 import { requireAdmin } from '../middleware/adminAuth';
 import { upload } from '../config/multer';
-import { validateRequest, videoUploadSchema, videoLinkSchema } from '../utils/validation';
+import { validateRequest, videoUploadSchema, videoLinkSchema, videoUpdateSchema } from '../utils/validation';
 import { uploadLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -25,6 +25,12 @@ router.post(
 );
 
 router.delete('/videos/:id', requireAdmin, AdminController.deleteVideo);
+router.put(
+  '/videos/:id',
+  requireAdmin,
+  validateRequest(videoUpdateSchema),
+  AdminController.updateVideo
+);
 
 router.get('/users', requireAdmin, AdminController.getUsers);
 router.put('/users/:id/role', requireAdmin, AdminController.updateUserRole);
