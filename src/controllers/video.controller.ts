@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { VideoService } from '../services/video.service';
+import { VideoModel } from '../models/Video';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
 import { ApiResponse } from '../types';
