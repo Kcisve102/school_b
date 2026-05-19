@@ -130,7 +130,7 @@ FULL TRANSCRIPT:
 ${transcript.substring(0, 5000)}${transcript.length > 5000 ? '...' : ''}
 
 REQUIREMENTS:
-1. Create exactly 5 questions that cover the main concepts
+1. Create 10-15 questions that cover the main concepts
 2. Each question must have exactly 4 options (A, B, C, D)
 3. Questions should range from basic recall to deeper understanding
 4. Include at least one question about the main topic/theme
