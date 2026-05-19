@@ -33,6 +33,7 @@ export const videoUploadSchema = Joi.object({
     'any.required': 'Title is required',
   }),
   description: Joi.string().max(5000).allow('', null).optional(),
+  category: Joi.string().max(100).optional(),
 });
 
 export const videoLinkSchema = Joi.object({
@@ -46,6 +47,7 @@ export const videoLinkSchema = Joi.object({
     'string.uri': 'Please provide a valid URL',
     'any.required': 'Video URL is required',
   }),
+  category: Joi.string().max(100).optional(),
 });
 
 export const videoUpdateSchema = Joi.object({
@@ -54,8 +56,9 @@ export const videoUpdateSchema = Joi.object({
     'string.max': 'Title cannot exceed 255 characters',
   }),
   description: Joi.string().max(5000).allow('', null).optional(),
+  category: Joi.string().max(100).optional(),
 }).min(1).messages({
-  'object.min': 'At least one field (title or description) must be provided',
+  'object.min': 'At least one field (title, description, or category) must be provided',
 });
 
 export const validateRequest = (schema: Joi.ObjectSchema) => {

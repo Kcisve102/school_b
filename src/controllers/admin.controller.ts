@@ -16,7 +16,7 @@ export class AdminController {
         });
       }
 
-      const { title, description } = req.body;
+      const { title, description, category } = req.body;
       const userId = req.session.userId!;
 
       const io = (req.app as any).get('io');
@@ -28,6 +28,7 @@ export class AdminController {
         description,
         userId,
         req.file.mimetype,
+        category,
         io
       );
 
@@ -47,7 +48,7 @@ export class AdminController {
 
   static async uploadVideoLink(req: Request, res: Response<ApiResponse>) {
     try {
-      const { url, title, description } = req.body;
+      const { url, title, description, category } = req.body;
       const userId = req.session.userId!;
 
       const io = (req.app as any).get('io');
@@ -57,6 +58,7 @@ export class AdminController {
         title,
         description,
         userId,
+        category,
         io
       );
 
@@ -96,7 +98,7 @@ export class AdminController {
   static async updateVideo(req: Request, res: Response<ApiResponse>) {
     try {
       const id = parseInt(req.params.id);
-      const { title, description } = req.body;
+      const { title, description, category } = req.body;
 
       const video = await VideoModel.findById(id);
 
@@ -107,7 +109,7 @@ export class AdminController {
         });
       }
 
-      await VideoModel.update(id, { title, description });
+      await VideoModel.update(id, { title, description, category });
 
       res.json({
         success: true,

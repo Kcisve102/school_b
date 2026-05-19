@@ -21,6 +21,7 @@ export class VideoService {
     description: string | undefined,
     userId: number,
     mimeType: string,
+    category: string | undefined,
     io?: any
   ): Promise<number> {
     const compressedPath = path.join(
@@ -69,6 +70,7 @@ export class VideoService {
         duration: Math.floor(metadata.duration),
         mime_type: mimeType,
         upload_type: 'file',
+        category,
       };
 
       const videoId = await VideoModel.create(videoData);
@@ -95,6 +97,7 @@ export class VideoService {
     title: string,
     description: string | undefined,
     userId: number,
+    category: string | undefined,
     io?: any
   ): Promise<number> {
     const tempDir = path.join(__dirname, '../../uploads/temp');
@@ -118,6 +121,7 @@ export class VideoService {
         description,
         userId,
         'video/mp4',
+        category,
         io
       );
 

@@ -14,14 +14,15 @@ export interface VideoCreateData {
   mime_type?: string;
   upload_type: 'file' | 'link';
   original_url?: string;
+  category?: string;
 }
 
 export class VideoModel {
   static async create(data: VideoCreateData): Promise<number> {
     const [result] = await pool.execute<ResultSetHeader>(
       `INSERT INTO videos (title, description, uploaded_by, s3_key, s3_url, original_filename,
-       file_size, duration, mime_type, upload_type, original_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       file_size, duration, mime_type, upload_type, original_url, category)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title,
         data.description || null,
@@ -34,6 +35,7 @@ export class VideoModel {
         data.mime_type || null,
         data.upload_type,
         data.original_url || null,
+        data.category || null,
       ]
     );
     return result.insertId;
@@ -82,9 +84,17 @@ export class VideoModel {
     return rows[0].total;
   }
 
+  static async findByCategory(category: string, limit: number = 50, offset: number = 0): Promise<Video[]> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT * FROM videos WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [category, limit, offset]
+    );
+    return rows as Video[];
+  }
+
   static async update(
     id: number,
-    data: { title?: string; description?: string }
+    data: { title?: string; description?: string; category?: string }
   ): Promise<void> {
     const updates: string[] = [];
     const values: any[] = [];
@@ -97,6 +107,11 @@ export class VideoModel {
     if (data.description !== undefined) {
       updates.push('description = ?');
       values.push(data.description);
+    }
+
+    if (data.category !== undefined) {
+      updates.push('category = ?');
+      values.push(data.category);
     }
 
     if (updates.length === 0) {

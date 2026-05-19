@@ -103,6 +103,27 @@ export class VideoController {
       });
     }
   }
+
+  static async getByCategory(req: Request, res: Response<ApiResponse>) {
+    try {
+      const category = req.params.category;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      const videos = await VideoModel.findByCategory(category, limit, offset);
+
+      res.json({
+        success: true,
+        data: videos,
+      });
+    } catch (error: any) {
+      logger.error('Get videos by category error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
 }
 
 export default VideoController;
