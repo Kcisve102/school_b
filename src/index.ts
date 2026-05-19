@@ -39,6 +39,9 @@ app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
 
+// Enable trust proxy for apps behind reverse proxies (nginx, etc.)
+app.set('trust proxy', true);
+
 app.use(helmet());
 
 app.use(
