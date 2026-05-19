@@ -23,8 +23,9 @@ const app = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [
-  "http://localhost:5173",
-
+  "http://localhost:5173",           // Local development
+  "https://trainflowai.com",         // Production
+  "https://www.trainflowai.com",     // Production with www
 ];
 
 const io = new Server(httpServer, {
@@ -42,7 +43,7 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   })
 );

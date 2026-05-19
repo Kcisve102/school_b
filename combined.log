@@ -3980,3 +3980,50 @@
 {"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 16:13:00"}
 {"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 16:13:00"}
 {"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 16:13:00"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 16:21:37"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 16:21:37"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 16:21:37"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 16:21:37"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 16:52:58"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 16:52:58"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 16:52:58"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 16:52:58"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 16:53:45"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 16:53:45"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 16:53:45"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 16:53:46"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 16:54:39"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 16:54:39"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 16:54:39"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 16:54:40"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 17:07:00"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 17:07:00"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 17:07:00"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 17:07:00"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 17:08:51"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 17:08:51"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 17:08:51"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 17:08:51"}
+{"level":"info","message":"Starting Gemini quiz generation...","service":"video-platform-backend","timestamp":"2026-02-28 17:09:10"}
+{"level":"info","message":"Starting Gemini quiz generation...","service":"video-platform-backend","timestamp":"2026-02-28 17:09:10"}
+{"level":"info","message":"Quiz generation completed. Questions: 5, Tokens used: 4065","service":"video-platform-backend","timestamp":"2026-02-28 17:09:19"}
+{"level":"info","message":"Quiz generated for video 3. Questions: 5, Tokens: 4065","service":"video-platform-backend","timestamp":"2026-02-28 17:09:19"}
+{"level":"info","message":"Quiz generation completed. Questions: 5, Tokens used: 4462","service":"video-platform-backend","timestamp":"2026-02-28 17:09:21"}
+{"level":"info","message":"Quiz generated for video 3. Questions: 5, Tokens: 4462","service":"video-platform-backend","timestamp":"2026-02-28 17:09:21"}
+{"level":"info","message":"Starting Gemini quiz generation...","service":"video-platform-backend","timestamp":"2026-02-28 17:26:40"}
+{"level":"info","message":"Starting Gemini quiz generation...","service":"video-platform-backend","timestamp":"2026-02-28 17:26:40"}
+{"level":"info","message":"Quiz generation completed. Questions: 5, Tokens used: 3859","service":"video-platform-backend","timestamp":"2026-02-28 17:26:49"}
+{"level":"info","message":"Quiz generated for video 3. Questions: 5, Tokens: 3859","service":"video-platform-backend","timestamp":"2026-02-28 17:26:49"}
+{"level":"info","message":"Quiz generation completed. Questions: 5, Tokens used: 4472","service":"video-platform-backend","timestamp":"2026-02-28 17:26:51"}
+{"level":"info","message":"Quiz generated for video 3. Questions: 5, Tokens: 4472","service":"video-platform-backend","timestamp":"2026-02-28 17:26:51"}
+{"level":"info","message":"Starting Gemini answer validation...","service":"video-platform-backend","timestamp":"2026-02-28 17:28:17"}
+{"level":"info","message":"Answer validation completed. Score: 2/5, Tokens used: 2152","service":"video-platform-backend","timestamp":"2026-02-28 17:28:22"}
+{"level":"info","message":"Quiz validated. Score: 2/5, Tokens: 2152","service":"video-platform-backend","timestamp":"2026-02-28 17:28:22"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 18:57:47"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 18:57:47"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 18:57:47"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 18:57:47"}
+{"level":"info","message":"FFmpeg path set to: /opt/homebrew/bin/ffmpeg","service":"video-platform-backend","timestamp":"2026-02-28 18:57:51"}
+{"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 18:57:51"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 18:57:51"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 18:57:51"}
