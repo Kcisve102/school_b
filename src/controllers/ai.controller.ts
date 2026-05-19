@@ -3,6 +3,7 @@ import { VideoModel } from '../models/Video';
 import { ApiResponse } from '../types';
 import logger from '../utils/logger';
 import { GeminiQuizService } from '../services/gemini-quiz.service';
+import { GeminiChatService } from '../services/gemini-chat.service';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
 
@@ -142,6 +143,54 @@ export class AIController {
         error: error.message || 'Failed to validate quiz',
         message:
           'An error occurred while validating your answers. Please try again.',
+      });
+    }
+  }
+
+  static async chat(req: Request, res: Response<ApiResponse>) {
+    try {
+      const { question, conversationHistory } = req.body;
+
+      if (!question || typeof question !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: 'Question is required and must be a string',
+        });
+      }
+
+      if (question.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Question cannot be empty',
+        });
+      }
+
+      // Optional conversation history for context
+      const history = Array.isArray(conversationHistory)
+        ? conversationHistory
+        : [];
+
+      // Get chat response from Gemini
+      const chatResult = await GeminiChatService.chat(question, history);
+
+      logger.info(
+        `Chat response generated. Tokens used: ${chatResult.tokens_used}`
+      );
+
+      res.json({
+        success: true,
+        data: {
+          response: chatResult.response,
+          tokensUsed: chatResult.tokens_used,
+        },
+      });
+    } catch (error: any) {
+      logger.error('Chat error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to process chat',
+        message:
+          'An error occurred while processing your question. Please try again.',
       });
     }
   }
