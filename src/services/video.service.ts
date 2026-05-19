@@ -7,8 +7,8 @@ import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
 import { S3Service } from './s3.service';
 import { FFmpegService } from './ffmpeg.service';
-import { WhisperService } from './whisper.service';
-import { GPTService } from './gpt.service';
+import { GeminiTranscriptionService } from './gemini-transcription.service';
+import { GeminiSummaryService } from './gemini-summary.service';
 import { YouTubeService } from './youtube.service';
 import logger from '../utils/logger';
 import { deleteFile, ensureDirectoryExists } from '../utils/helpers';
@@ -139,6 +139,11 @@ export class VideoService {
       '../../uploads/temp',
       `${uuidv4()}.mp3`
     );
+    const tempVideoPath = path.join(
+      __dirname,
+      '../../uploads/temp',
+      `${uuidv4()}.mp4`
+    );
 
     try {
       logger.info(`Starting transcription for video ID: ${videoId}`);
@@ -148,15 +153,20 @@ export class VideoService {
         io.emit('video:transcription:progress', { videoId, status: 'processing' });
       }
 
-      const tempVideoPath = path.join(
-        __dirname,
-        '../../uploads/temp',
-        `${uuidv4()}.mp4`
-      );
+      // Get video record to retrieve S3 key
+      const video = await VideoModel.findById(videoId);
+      if (!video) {
+        throw new Error(`Video not found: ${videoId}`);
+      }
 
+      // Download video from S3 to temp location
+      logger.info(`Downloading video from S3: ${video.s3_key}`);
+      await S3Service.downloadVideo(video.s3_key, tempVideoPath);
+
+      logger.info('Extracting audio from video...');
       await FFmpegService.extractAudio(tempVideoPath, audioPath);
 
-      const transcriptionResult = await WhisperService.transcribe(audioPath);
+      const transcriptionResult = await GeminiTranscriptionService.transcribe(audioPath);
 
       await TranscriptionModel.create({
         video_id: videoId,
@@ -181,6 +191,7 @@ export class VideoService {
       logger.error(`Transcription failed for video ID ${videoId}:`, error);
       await VideoModel.updateStatus(videoId, 'transcription_status', 'failed');
       await deleteFile(audioPath);
+      await deleteFile(tempVideoPath);
 
       if (io) {
         io.emit('video:transcription:failed', { videoId, error: error.message });
@@ -197,13 +208,13 @@ export class VideoService {
       logger.info(`Starting summarization for video ID: ${videoId}`);
       await VideoModel.updateStatus(videoId, 'summary_status', 'processing');
 
-      const summaryResult = await GPTService.summarize(transcript);
+      const summaryResult = await GeminiSummaryService.summarize(transcript);
 
       await SummaryModel.create({
         video_id: videoId,
         summary_text: summaryResult.summary,
         key_points: summaryResult.key_points,
-        model_used: 'gpt-4-turbo-preview',
+        model_used: 'gemini-2.5-flash',
         tokens_used: summaryResult.tokens_used,
       });
 

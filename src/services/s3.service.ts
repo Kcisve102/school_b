@@ -69,6 +69,37 @@ export class S3Service {
       throw new Error('Failed to generate presigned URL');
     }
   }
+
+  static async downloadVideo(key: string, destinationPath: string): Promise<void> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: s3BucketName,
+        Key: key,
+      });
+
+      const response = await s3Client.send(command);
+
+      if (!response.Body) {
+        throw new Error('No data received from S3');
+      }
+
+      // Convert the readable stream to a buffer and write to file
+      const chunks: Uint8Array[] = [];
+      const stream = response.Body as any;
+
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      const buffer = Buffer.concat(chunks);
+      await fs.writeFile(destinationPath, buffer);
+
+      logger.info(`File downloaded from S3 to: ${destinationPath}`);
+    } catch (error) {
+      logger.error('S3 download error:', error);
+      throw new Error('Failed to download file from S3');
+    }
+  }
 }
 
 export default S3Service;
