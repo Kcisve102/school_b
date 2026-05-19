@@ -30,8 +30,8 @@ export class YouTubeService {
       logger.info(`Downloading video from: ${url}`);
 
       // yt-dlp command to download the video
-      // Add user-agent and extractor args to avoid bot detection
-      const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4 --extractor-args "youtube:player_client=android" --user-agent "com.google.android.youtube/19.09.37 (Linux; U; Android 11) gzip" -o "${outputPath}" "${url}"`;
+      // Use iOS client to bypass bot detection
+      const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4 --extractor-args "youtube:player_client=ios" -o "${outputPath}" "${url}"`;
 
       logger.info(`Executing: ${command}`);
 
