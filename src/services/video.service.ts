@@ -283,6 +283,8 @@ export class VideoService {
     }
 
     await S3Service.deleteVideo(video.s3_key);
+    await TranscriptionModel.delete(id);
+    await SummaryModel.delete(id);
     await VideoModel.delete(id);
 
     logger.info(`Video deleted: ${id}`);
