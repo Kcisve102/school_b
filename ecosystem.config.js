@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'trainflowai-backend',
+    name: 'knowverd-backend',
     script: './dist/index.js',
     instances: 1,
     exec_mode: 'fork',
