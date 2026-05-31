@@ -4035,3 +4035,16 @@
 {"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:18:15"}
 {"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:22:43"}
 {"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:22:43"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:47:49"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:47:50"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:56:44"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:56:44"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:56:47"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:56:47"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:57:08"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:57:08"}
+{"level":"info","message":"Starting Gemini chat for AI learning...","service":"video-platform-backend","timestamp":"2026-05-30 22:02:54"}
+{"level":"info","message":"Chat response generated. Tokens used: 1968","service":"video-platform-backend","timestamp":"2026-05-30 22:03:04"}
+{"level":"info","message":"Chat response generated. Tokens used: 1968","service":"video-platform-backend","timestamp":"2026-05-30 22:03:04"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 22:07:28"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 22:07:28"}
