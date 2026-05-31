@@ -240,11 +240,22 @@ export class VideoService {
   }
 
   static async getVideoById(id: number) {
-    return await VideoModel.findById(id);
+    const video = await VideoModel.findById(id);
+    if (!video) return null;
+    return {
+      ...video,
+      s3_url: await S3Service.getPresignedUrl(video.s3_key),
+    };
   }
 
   static async getAllVideos(limit: number = 50, offset: number = 0) {
-    return await VideoModel.findAll(limit, offset);
+    const videos = await VideoModel.findAll(limit, offset);
+    return Promise.all(
+      videos.map(async (video) => ({
+        ...video,
+        s3_url: await S3Service.getPresignedUrl(video.s3_key),
+      }))
+    );
   }
 
   static async reRenderTranscriptAndSummary(videoId: number, io?: any): Promise<void> {
