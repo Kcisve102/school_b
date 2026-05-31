@@ -4031,3 +4031,7 @@
 {"level":"info","message":"FFprobe path set to: /opt/homebrew/bin/ffprobe","service":"video-platform-backend","timestamp":"2026-02-28 20:21:13"}
 {"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-02-28 20:21:13"}
 {"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-02-28 20:21:14"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:18:14"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:18:15"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 21:22:43"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 21:22:43"}
