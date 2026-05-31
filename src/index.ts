@@ -24,8 +24,8 @@ const httpServer = createServer(app);
 
 const allowedOrigins = [
   "http://localhost:5173",           // Local development
-  "https://trainflowai.com",         // Production
-  "https://www.trainflowai.com",     // Production with www
+  "https://knowverd.com",            // Production
+  "https://www.knowverd.com",        // Production with www
 ];
 
 const io = new Server(httpServer, {
