@@ -116,7 +116,7 @@ export class GeminiQuizService {
     try {
       logger.info('Starting Gemini quiz generation...');
 
-      const prompt = `You are an expert educational content creator specializing in creating effective comprehension quizzes.
+      const prompt = `You are an expert educational content creator specializing in creating effective comprehension quizzes. Write all output in Simplified Chinese (中文简体).
 
 Based on the following video content, create a quiz with EXACTLY 5 multiple-choice questions to test viewer comprehension.
 
@@ -138,6 +138,7 @@ REQUIREMENTS:
 6. Make wrong options plausible but clearly incorrect
 7. Provide clear explanations for the correct answers
 8. Vary question difficulty (2 easy, 2 medium, 1 challenging)
+9. Write all questions, options, and explanations in Chinese
 
 Ensure questions are clear, specific, and directly related to the video content.`;
 
@@ -210,7 +211,7 @@ Explanation: ${q.explanation}
         })
         .join('\n---\n');
 
-      const prompt = `You are an expert quiz grader providing educational feedback.
+      const prompt = `You are an expert quiz grader providing educational feedback. Write all explanations and feedback in Simplified Chinese (中文简体).
 
 Review the following quiz questions and user answers. For each question:
 1. Determine if the user's answer is correct

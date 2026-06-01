@@ -40,16 +40,16 @@ export class GeminiSummaryService {
     try {
       logger.info('Starting Gemini summarization...');
 
-      const prompt = `You are an expert at summarizing educational video content.
+      const prompt = `You are an expert at summarizing educational video content. Write all output in Simplified Chinese (中文简体).
 
 Given the following video transcript, please:
-1. Provide a concise summary (3-4 sentences) that captures the main topic and key takeaways
-2. Extract 5-7 key points as a bulleted list
+1. Provide a concise summary (3-4 sentences) in Chinese that captures the main topic and key takeaways
+2. Extract 5-7 key points in Chinese as a bulleted list
 
 TRANSCRIPT:
 ${transcript}
 
-Analyze the content carefully and provide a comprehensive yet concise summary.`;
+Analyze the content carefully and provide a comprehensive yet concise summary in Chinese.`;
 
       const response = await retryGeminiCall(async () => {
         return await geminiClient.models.generateContent({

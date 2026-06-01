@@ -100,15 +100,15 @@ export class GeminiTranscriptionService {
       await this.waitForFileProcessing(fileName);
 
       // Create transcription prompt with structured output
-      const prompt = `You are an expert transcription system. Transcribe this audio file with high accuracy.
+      const prompt = `You are an expert transcription system. Transcribe this audio file with high accuracy, and output all transcript text in Simplified Chinese (中文简体). If the audio is not in Chinese, translate it into Chinese while preserving meaning.
 
 REQUIREMENTS:
-1. Provide the complete transcript as a single text field
-2. Detect and return the primary language code (ISO 639-1, e.g., 'en', 'es', 'fr')
+1. Provide the complete transcript as a single text field in Chinese
+2. Detect and return the primary language code (ISO 639-1, e.g., 'en', 'es', 'fr') of the source audio
 3. Break the transcript into logical segments with precise timestamps
 4. Each segment should be 5-15 seconds long for optimal readability
-5. Preserve punctuation, capitalization, and formatting
-6. If multiple speakers are present, indicate speaker changes in the text (e.g., "Speaker 1: ...")
+5. Preserve punctuation and formatting
+6. If multiple speakers are present, indicate speaker changes in the text (e.g., "说话人1：...")
 
 Return the result in the specified JSON format.`;
 
