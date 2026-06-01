@@ -211,6 +211,10 @@ export class VideoService {
       logger.info(`Starting summarization for video ID: ${videoId}`);
       await VideoModel.updateStatus(videoId, 'summary_status', 'processing');
 
+      if (io) {
+        io.emit('video:summary:progress', { videoId });
+      }
+
       const summaryResult = await GeminiSummaryService.summarize(transcript);
 
       await SummaryModel.create({

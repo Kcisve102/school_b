@@ -4048,3 +4048,49 @@
 {"level":"info","message":"Chat response generated. Tokens used: 1968","service":"video-platform-backend","timestamp":"2026-05-30 22:03:04"}
 {"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-05-30 22:07:28"}
 {"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-05-30 22:07:28"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:01:22"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:01:22"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:09:42"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:09:43"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:09:46"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:09:46"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:09:49"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:09:50"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:09:56"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:09:56"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:09:59"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:10:00"}
+{"level":"info","message":"Gemini AI client initialized successfully","service":"video-platform-backend","timestamp":"2026-06-01 19:17:51"}
+{"level":"info","message":"\n🚀 Server started successfully!\n📡 Server running on port 8000\n🔗 API: http://localhost:8000/api\n🌐 Health check: http://localhost:8000/health\n📊 Environment: development\n      ","service":"video-platform-backend","timestamp":"2026-06-01 19:17:51"}
+{"level":"info","message":"User logged in: admin@admin.com","service":"video-platform-backend","timestamp":"2026-06-01 19:24:59"}
+{"level":"info","message":"Processing video upload: final-1.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:11"}
+{"level":"info","message":"Compressing video: final-1.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:12"}
+{"level":"info","message":"FFmpeg started: ffmpeg -i /Users/mac/Desktop/chloe/school_b/uploads/temp/3f34995a-8b10-4f24-9c78-92e97afe7ced.mp4 -y -c:v libx264 -preset medium -b:v 1000k -c:a aac -b:a 128k -movflags +faststart /Users/mac/Desktop/chloe/school_b/uploads/compressed/d67c2a60-4b88-434e-bacc-cbbaa54fc827.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:12"}
+{"level":"debug","message":"Compression progress: 16.22%","service":"video-platform-backend","timestamp":"2026-06-01 19:25:12"}
+{"level":"debug","message":"Compression progress: 47.33%","service":"video-platform-backend","timestamp":"2026-06-01 19:25:13"}
+{"level":"debug","message":"Compression progress: 0.00%","service":"video-platform-backend","timestamp":"2026-06-01 19:25:13"}
+{"level":"debug","message":"Compression progress: 99.22%","service":"video-platform-backend","timestamp":"2026-06-01 19:25:13"}
+{"level":"info","message":"Compression completed: /Users/mac/Desktop/chloe/school_b/uploads/compressed/d67c2a60-4b88-434e-bacc-cbbaa54fc827.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:13"}
+{"level":"info","message":"Uploading to S3: final-1.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:13"}
+{"level":"info","message":"File uploaded to S3: videos/1780356313883-c78e21d0-c045-4b46-897e-1e4adf61ed80.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"Deleted file: /Users/mac/Desktop/chloe/school_b/uploads/temp/3f34995a-8b10-4f24-9c78-92e97afe7ced.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"Deleted file: /Users/mac/Desktop/chloe/school_b/uploads/compressed/d67c2a60-4b88-434e-bacc-cbbaa54fc827.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"Video uploaded successfully. ID: 11","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"Starting transcription for video ID: 11","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"WebSocket client connected: 8wsSI_rrzsuEfuljAAAB","service":"video-platform-backend","timestamp":"2026-06-01 19:25:15"}
+{"level":"info","message":"Downloading video from S3: videos/1780356313883-c78e21d0-c045-4b46-897e-1e4adf61ed80.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"File downloaded from S3 to: /Users/mac/Desktop/chloe/school_b/uploads/temp/b7b7e5e0-4421-4401-951e-829a7c01d282.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"Extracting audio from video...","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"Audio extraction started: ffmpeg -i /Users/mac/Desktop/chloe/school_b/uploads/temp/b7b7e5e0-4421-4401-951e-829a7c01d282.mp4 -y -acodec libmp3lame -b:a 128k -vn /Users/mac/Desktop/chloe/school_b/uploads/temp/a4d66641-288a-4e23-a41b-fe79671a2184.mp3","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"Audio extraction completed: /Users/mac/Desktop/chloe/school_b/uploads/temp/a4d66641-288a-4e23-a41b-fe79671a2184.mp3","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"Starting Gemini transcription for: /Users/mac/Desktop/chloe/school_b/uploads/temp/a4d66641-288a-4e23-a41b-fe79671a2184.mp3","service":"video-platform-backend","timestamp":"2026-06-01 19:25:16"}
+{"level":"info","message":"File uploaded to Gemini: https://generativelanguage.googleapis.com/v1beta/files/7pjv6jgb5ip8","service":"video-platform-backend","timestamp":"2026-06-01 19:25:18"}
+{"level":"info","message":"File files/7pjv6jgb5ip8 is ready for processing","service":"video-platform-backend","timestamp":"2026-06-01 19:25:18"}
+{"level":"info","message":"Transcription completed. Language: en, Segments: 1","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Transcription completed for video ID: 11","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Deleted file: /Users/mac/Desktop/chloe/school_b/uploads/temp/a4d66641-288a-4e23-a41b-fe79671a2184.mp3","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Deleted file: /Users/mac/Desktop/chloe/school_b/uploads/temp/b7b7e5e0-4421-4401-951e-829a7c01d282.mp4","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Starting summarization for video ID: 11","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Starting Gemini summarization...","service":"video-platform-backend","timestamp":"2026-06-01 19:25:23"}
+{"level":"info","message":"Summarization completed. Tokens used: 1129","service":"video-platform-backend","timestamp":"2026-06-01 19:25:29"}
+{"level":"info","message":"Summarization completed for video ID: 11","service":"video-platform-backend","timestamp":"2026-06-01 19:25:30"}
