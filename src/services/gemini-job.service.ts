@@ -39,7 +39,7 @@ export class GeminiJobService {
   /**
    * Generate 5 job suggestions based on video summary/key points.
    * Kept in English regardless of quiz/chat language, since keywords feed
-   * directly into an Indeed search URL.
+   * directly into Indeed and Fiverr search URLs.
    */
   static async generateJobSuggestions(
     summary: string,
