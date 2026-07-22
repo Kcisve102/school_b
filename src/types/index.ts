@@ -1,3 +1,6 @@
+import { Question, QuizResult } from './quiz.types';
+import { JobSuggestion } from './job.types';
+
 export interface User {
   id: number;
   email: string;
@@ -65,4 +68,37 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+export interface VideoWatch {
+  id: number;
+  user_id: number;
+  video_id: number;
+  watched_at: Date;
+  updated_at: Date;
+}
+
+export interface QuizAttempt {
+  id: number;
+  user_id: number;
+  video_id: number;
+  questions: Question[];
+  results: QuizResult[];
+  score: number;
+  total_questions: number;
+  percentage_score: number;
+  job_suggestions: JobSuggestion[] | null;
+  created_at: Date;
+}
+
+export interface QuizAttemptDetail {
+  id: number;
+  videoId: number;
+  questions: Question[];
+  results: QuizResult[];
+  score: number;
+  totalQuestions: number;
+  percentageScore: number;
+  jobSuggestions: JobSuggestion[] | null;
+  createdAt: Date;
 }

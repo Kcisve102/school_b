@@ -16,6 +16,7 @@ import authRoutes from './routes/auth.routes';
 import videoRoutes from './routes/video.routes';
 import adminRoutes from './routes/admin.routes';
 import aiRoutes from './routes/ai.routes';
+import historyRoutes from './routes/history.routes';
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/history', historyRoutes);
 
 app.use(errorHandler);
 
