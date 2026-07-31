@@ -7,7 +7,9 @@
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "node -r ts-node/register src/db/migrate.ts"
+    "migrate": "node -r ts-node/register src/db/migrate.ts",
+    "migrate:baseline": "node -r ts-node/register src/db/migrate.ts --baseline",
+    "seed:admin": "node -r ts-node/register src/db/seeds/create-admin.ts"
   },
   "keywords": [
     "education",

@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
 
 import { sessionConfig } from './config/session';
 import { testConnection } from './config/database';
+import { VideoModel } from './models/Video';
 import { errorHandler } from './middleware/errorHandler';
 import { generalLimiter } from './middleware/rateLimiter';
 import logger from './utils/logger';
@@ -40,8 +41,11 @@ app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
 
-// Enable trust proxy for apps behind reverse proxies (nginx, etc.)
-app.set('trust proxy', true);
+// Trust exactly the reverse proxy hop(s) in front of this app (Caddy = 1).
+// `true` would trust ANY proxy, letting a client spoof X-Forwarded-For and
+// bypass every IP-based rate limit. Override with TRUST_PROXY_HOPS if the
+// deployment adds another hop (e.g. a CDN in front of Caddy).
+app.set('trust proxy', parseInt(process.env.TRUST_PROXY_HOPS || '1'));
 
 app.use(helmet());
 
@@ -86,6 +90,19 @@ const startServer = async () => {
     if (!dbConnected) {
       logger.error('Failed to connect to database. Exiting...');
       process.exit(1);
+    }
+
+    // Any video left mid-processing by a previous shutdown can never resume,
+    // so mark it failed rather than leaving it stuck on 'processing'.
+    try {
+      const reconciled = await VideoModel.failStaleProcessing();
+      if (reconciled > 0) {
+        logger.warn(
+          `Reconciled ${reconciled} video(s) left in 'processing' by a previous shutdown — marked failed`
+        );
+      }
+    } catch (reconcileError) {
+      logger.error('Failed to reconcile stale processing videos:', reconcileError);
     }
 
     httpServer.listen(PORT, () => {

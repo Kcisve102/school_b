@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { VideoService } from '../services/video.service';
-import { VideoModel } from '../models/Video';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
 import { ApiResponse } from '../types';
@@ -111,7 +110,11 @@ export class VideoController {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
 
-      const videos = await VideoModel.findByCategory(category, limit, offset);
+      // Must go through VideoService so each video gets a presigned URL.
+      // Calling VideoModel directly returned the raw stored s3_url, which
+      // points at a private bucket and always 403s — videos opened from the
+      // category page could never play.
+      const videos = await VideoService.getVideosByCategory(category, limit, offset);
 
       res.json({
         success: true,

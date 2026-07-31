@@ -68,6 +68,26 @@ export class VideoModel {
     );
   }
 
+  /**
+   * Processing runs in-process with no queue, so a restart abandons any job
+   * that was mid-flight and leaves its row stuck on 'processing' forever.
+   * Marking those failed at boot makes them visible and re-renderable.
+   *
+   * @returns number of rows reconciled
+   */
+  static async failStaleProcessing(): Promise<number> {
+    const [result] = await pool.execute<ResultSetHeader>(
+      `UPDATE videos
+          SET compression_status   = IF(compression_status   = 'processing', 'failed', compression_status),
+              transcription_status = IF(transcription_status = 'processing', 'failed', transcription_status),
+              summary_status       = IF(summary_status       = 'processing', 'failed', summary_status)
+        WHERE compression_status = 'processing'
+           OR transcription_status = 'processing'
+           OR summary_status = 'processing'`
+    );
+    return result.affectedRows;
+  }
+
   static async updateDuration(id: number, duration: number): Promise<void> {
     await pool.execute(
       'UPDATE videos SET duration = ? WHERE id = ?',

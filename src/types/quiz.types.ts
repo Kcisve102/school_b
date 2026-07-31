@@ -1,3 +1,7 @@
+/**
+ * Full question including the answer key. Server-side only — persisted to the
+ * `quizzes` table and never sent to the client before submission.
+ */
 export interface Question {
   id: number;
   question: string;
@@ -6,11 +10,30 @@ export interface Question {
   explanation: string;
 }
 
+/**
+ * What the client receives when a quiz is generated: no `correctAnswer`, no
+ * `explanation`. Keeping this a distinct type makes leaking the key a
+ * compile-time error rather than a silent regression.
+ */
+export type PublicQuestion = Omit<Question, 'correctAnswer' | 'explanation'>;
+
+export function toPublicQuestion(question: Question): PublicQuestion {
+  return {
+    id: question.id,
+    question: question.question,
+    options: question.options,
+  };
+}
+
 export interface UserAnswer {
   questionId: number;
   selectedOption: number;
 }
 
+/**
+ * Per-question outcome, returned only after submission.
+ * `correctAnswer` is the option *text*, not the index.
+ */
 export interface QuizResult {
   questionId: number;
   isCorrect: boolean;
@@ -27,9 +50,5 @@ export interface ValidationResponse {
 
 export interface GeminiQuizResponse {
   questions: Question[];
-  tokens_used: number;
-}
-
-export interface GeminiValidationResponse extends ValidationResponse {
   tokens_used: number;
 }

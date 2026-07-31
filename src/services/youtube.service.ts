@@ -1,9 +1,27 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
-import path from 'path';
 import logger from '../utils/logger';
 
-const execAsync = promisify(exec);
+// execFile (not exec) passes arguments directly to the process without a shell,
+// so a URL containing shell metacharacters cannot inject a command.
+const execFileAsync = promisify(execFile);
+
+/**
+ * yt-dlp accepts arguments that begin with `-` as flags, so a crafted URL could
+ * otherwise smuggle options into the command even without a shell.
+ */
+function assertSafeUrl(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error('Invalid URL');
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error('Only http and https URLs are supported');
+  }
+}
 
 export class YouTubeService {
   /**
@@ -27,15 +45,25 @@ export class YouTubeService {
    */
   static async downloadVideo(url: string, outputPath: string): Promise<string> {
     try {
+      assertSafeUrl(url);
+
       logger.info(`Downloading video from: ${url}`);
 
-      // yt-dlp command to download the video
-      // Try multiple bypass strategies
-      const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --merge-output-format mp4 --no-check-certificates --geo-bypass -o "${outputPath}" "${url}"`;
+      const args = [
+        '-f',
+        'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        '--merge-output-format',
+        'mp4',
+        '--no-check-certificates',
+        '--geo-bypass',
+        '-o',
+        outputPath,
+        // `--` ends option parsing so a URL starting with `-` is never read as a flag
+        '--',
+        url,
+      ];
 
-      logger.info(`Executing: ${command}`);
-
-      const { stdout, stderr } = await execAsync(command, {
+      const { stdout, stderr } = await execFileAsync('yt-dlp', args, {
         maxBuffer: 1024 * 1024 * 10, // 10MB buffer
       });
 
@@ -58,8 +86,10 @@ export class YouTubeService {
    */
   static async getVideoInfo(url: string): Promise<any> {
     try {
-      const command = `yt-dlp -j "${url}"`;
-      const { stdout } = await execAsync(command);
+      assertSafeUrl(url);
+      const { stdout } = await execFileAsync('yt-dlp', ['-j', '--', url], {
+        maxBuffer: 1024 * 1024 * 10,
+      });
       return JSON.parse(stdout);
     } catch (error: any) {
       logger.error('Failed to get video info:', error);

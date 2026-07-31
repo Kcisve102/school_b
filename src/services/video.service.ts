@@ -4,11 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { VideoModel, VideoCreateData } from '../models/Video';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
+import { QuizModel } from '../models/Quiz';
 import { S3Service } from './s3.service';
 import { FFmpegService } from './ffmpeg.service';
 import { GeminiTranscriptionService } from './gemini-transcription.service';
 import { GeminiSummaryService } from './gemini-summary.service';
 import { YouTubeService } from './youtube.service';
+import { geminiModel } from '../config/gemini';
 import logger from '../utils/logger';
 import { deleteFile, ensureDirectoryExists } from '../utils/helpers';
 
@@ -221,7 +223,7 @@ export class VideoService {
         video_id: videoId,
         summary_text: summaryResult.summary,
         key_points: summaryResult.key_points,
-        model_used: 'gemini-2.5-flash',
+        model_used: geminiModel,
         tokens_used: summaryResult.tokens_used,
       });
 
@@ -261,6 +263,20 @@ export class VideoService {
     );
   }
 
+  static async getVideosByCategory(
+    category: string,
+    limit: number = 50,
+    offset: number = 0
+  ) {
+    const videos = await VideoModel.findByCategory(category, limit, offset);
+    return Promise.all(
+      videos.map(async (video) => ({
+        ...video,
+        s3_url: await S3Service.getPresignedUrl(video.s3_key),
+      }))
+    );
+  }
+
   static async reRenderTranscriptAndSummary(videoId: number, io?: any): Promise<void> {
     const video = await VideoModel.findById(videoId);
     if (!video) {
@@ -270,6 +286,10 @@ export class VideoService {
     // Delete existing transcription and summary records
     await TranscriptionModel.delete(videoId);
     await SummaryModel.delete(videoId);
+
+    // Drop cached quizzes too — they were generated from the old transcript,
+    // and would otherwise keep being served after a re-render.
+    await QuizModel.deleteByVideoId(videoId);
 
     // Reset statuses to pending
     await VideoModel.updateStatus(videoId, 'transcription_status', 'pending');

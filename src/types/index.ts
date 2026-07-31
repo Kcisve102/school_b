@@ -82,6 +82,7 @@ export interface QuizAttempt {
   id: number;
   user_id: number;
   video_id: number;
+  quiz_id: number | null;
   questions: Question[];
   results: QuizResult[];
   score: number;

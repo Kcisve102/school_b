@@ -92,11 +92,24 @@ export async function retryGeminiCall<T>(
     try {
       return await fn();
     } catch (error: any) {
-      lastError = error;
+      // Classify the raw SDK error into a GeminiError so the `retryable` flag
+      // below is meaningful. Without this step nothing was ever an instance of
+      // GeminiError, so every failure — including a bad API key — burned all
+      // three attempts and their backoff.
+      let classified: any = error;
+      if (!(error instanceof GeminiError)) {
+        try {
+          handleGeminiError(error);
+        } catch (converted) {
+          classified = converted;
+        }
+      }
+
+      lastError = classified;
 
       // Don't retry if error is not retryable
-      if (error instanceof GeminiError && !error.retryable) {
-        throw error;
+      if (classified instanceof GeminiError && !classified.retryable) {
+        throw classified;
       }
 
       if (attempt < maxRetries) {

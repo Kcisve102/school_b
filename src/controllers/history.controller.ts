@@ -1,14 +1,14 @@
 /// <reference path="../types/express-session.d.ts" />
 import { Request, Response } from 'express';
-import axios from 'axios';
 import { ApiResponse } from '../types';
 import logger from '../utils/logger';
 import { VideoWatchModel } from '../models/VideoWatch';
 import { QuizAttemptModel } from '../models/QuizAttempt';
 import { VideoModel } from '../models/Video';
 import { SummaryModel } from '../models/Summary';
+import { QuizModel } from '../models/Quiz';
 import { GeminiJobService } from '../services/gemini-job.service';
-import { JobSuggestion, JobSuggestionWithStatus } from '../types/job.types';
+import { GeminiQuizService } from '../services/gemini-quiz.service';
 
 const JOB_SUGGESTION_THRESHOLD = 0;
 
@@ -20,24 +20,24 @@ async function getVideoJobContext(videoId: number) {
   return { summary, video };
 }
 
-async function checkUrlStatus(url: string): Promise<'active' | 'unavailable'> {
-  const timeout = 5000;
-  try {
-    const headResponse = await axios.head(url, { timeout, validateStatus: () => true });
-    if (headResponse.status >= 200 && headResponse.status < 300) {
-      return 'active';
-    }
-  } catch {
-    // fall through to GET
-  }
-
-  try {
-    const getResponse = await axios.get(url, { timeout, validateStatus: () => true });
-    return getResponse.status >= 200 && getResponse.status < 300 ? 'active' : 'unavailable';
-  } catch {
-    return 'unavailable';
-  }
-}
+/*
+ * Job availability checking was removed deliberately.
+ *
+ * It probed `indeed.com/jobs?q=<keywords>` — a *search results* page, which
+ * returns HTTP 200 whether it matches 500 jobs or none — so "active" never
+ * actually meant a job existed. Worse, Indeed serves a 403 anti-bot page to
+ * datacenter IPs, and that 403 was mapped to "unavailable", making healthy
+ * roles render as dead. Verified against the live site: 403 even with a real
+ * browser User-Agent.
+ *
+ * Gemini suggests a role and keywords rather than a specific posting, so there
+ * is no individual listing whose liveness could be checked anyway. Showing no
+ * badge is more honest than showing a wrong one. The Indeed and Fiverr links
+ * still work and are unaffected.
+ *
+ * If this signal is wanted later, an official jobs API (Adzuna, JSearch) gives
+ * real counts and real postings for the cost of one API key.
+ */
 
 export class HistoryController {
   static async recordWatch(req: Request, res: Response<ApiResponse>) {
@@ -80,19 +80,19 @@ export class HistoryController {
   static async recordQuizAttempt(req: Request, res: Response<ApiResponse>) {
     try {
       const userId = req.session.userId!;
-      const { videoId, questions, results, score, totalQuestions, percentageScore } = req.body;
+      const { videoId, quizId, userAnswers } = req.body;
 
-      if (
-        !videoId ||
-        !questions ||
-        !results ||
-        score == null ||
-        !totalQuestions ||
-        percentageScore == null
-      ) {
+      if (!videoId || !quizId || !userAnswers) {
         return res.status(400).json({
           success: false,
-          error: 'Missing required quiz attempt fields',
+          error: 'videoId, quizId and userAnswers are required',
+        });
+      }
+
+      if (!Array.isArray(userAnswers)) {
+        return res.status(400).json({
+          success: false,
+          error: 'userAnswers must be an array',
         });
       }
 
@@ -106,28 +106,56 @@ export class HistoryController {
         });
       }
 
+      const quiz = await QuizModel.findById(parseInt(quizId));
+
+      if (!quiz) {
+        return res.status(404).json({
+          success: false,
+          error: 'Quiz not found',
+        });
+      }
+
+      if (quiz.video_id !== videoIdNum) {
+        return res.status(400).json({
+          success: false,
+          error: 'Quiz does not belong to this video',
+        });
+      }
+
+      // Score is recomputed from the stored answer key. Any score supplied by
+      // the client is ignored — previously a user could POST a 100% result for
+      // a quiz they never took.
+      const graded = GeminiQuizService.gradeAnswers(quiz.questions, userAnswers);
+
       const attemptId = await QuizAttemptModel.create({
         user_id: userId,
         video_id: videoIdNum,
-        questions,
-        results,
-        score,
-        total_questions: totalQuestions,
-        percentage_score: percentageScore,
+        quiz_id: quiz.id,
+        questions: quiz.questions,
+        results: graded.results,
+        score: graded.score,
+        total_questions: graded.totalQuestions,
+        percentage_score: graded.percentageScore,
       });
 
       logger.info(
-        `Quiz attempt ${attemptId} recorded for user ${userId}, video ${videoIdNum}, score ${score}/${totalQuestions}`
+        `Quiz attempt ${attemptId} recorded for user ${userId}, video ${videoIdNum}, score ${graded.score}/${graded.totalQuestions}`
       );
 
       res.json({
         success: true,
-        data: { attemptId },
+        data: {
+          attemptId,
+          results: graded.results,
+          score: graded.score,
+          totalQuestions: graded.totalQuestions,
+          percentageScore: graded.percentageScore,
+        },
       });
 
       // Fire-and-forget: pre-generate job suggestions so history already has
       // them populated on next view, without delaying this response.
-      if (percentageScore >= JOB_SUGGESTION_THRESHOLD) {
+      if (graded.percentageScore >= JOB_SUGGESTION_THRESHOLD) {
         (async () => {
           try {
             const { summary, video } = await getVideoJobContext(videoIdNum);
@@ -315,54 +343,6 @@ export class HistoryController {
       });
     } catch (error: any) {
       logger.error('Get quiz attempt detail error:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message,
-      });
-    }
-  }
-
-  static async checkJobValidity(req: Request, res: Response<ApiResponse>) {
-    try {
-      const userId = req.session.userId!;
-      const attemptId = parseInt(req.params.attemptId);
-
-      const attempt = await QuizAttemptModel.findById(attemptId);
-
-      if (!attempt) {
-        return res.status(404).json({
-          success: false,
-          error: 'Quiz attempt not found',
-        });
-      }
-
-      if (attempt.user_id !== userId) {
-        return res.status(403).json({
-          success: false,
-          error: 'Forbidden',
-        });
-      }
-
-      const jobs = attempt.job_suggestions ?? [];
-
-      if (jobs.length === 0) {
-        return res.json({ success: true, data: { jobs: [] } });
-      }
-
-      const checked: JobSuggestionWithStatus[] = await Promise.all(
-        jobs.map(async (job: JobSuggestion) => {
-          const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(job.keywords)}`;
-          const status = await checkUrlStatus(url);
-          return { ...job, status };
-        })
-      );
-
-      res.json({
-        success: true,
-        data: { jobs: checked },
-      });
-    } catch (error: any) {
-      logger.error('Check job validity error:', error);
       res.status(500).json({
         success: false,
         error: error.message,

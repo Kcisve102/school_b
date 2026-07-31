@@ -6,6 +6,14 @@ import { GeminiQuizService } from '../services/gemini-quiz.service';
 import { GeminiChatService } from '../services/gemini-chat.service';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
+import { QuizModel } from '../models/Quiz';
+import { toPublicQuestion } from '../types/quiz.types';
+import { geminiModel } from '../config/gemini';
+
+// The frontend already limits input to 1000 characters; this enforces it
+// server-side so token spend per request is bounded.
+const MAX_CHAT_QUESTION_CHARS = 2000;
+const MAX_CHAT_HISTORY_MESSAGES = 20;
 
 export class AIController {
   static async getStatus(req: Request, res: Response<ApiResponse>) {
@@ -40,7 +48,7 @@ export class AIController {
 
   static async generateQuiz(req: Request, res: Response<ApiResponse>) {
     try {
-      const { videoId } = req.body;
+      const { videoId, regenerate } = req.body;
 
       if (!videoId) {
         return res.status(400).json({
@@ -50,6 +58,30 @@ export class AIController {
       }
 
       const videoIdNum = parseInt(videoId);
+
+      if (Number.isNaN(videoIdNum)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Video ID must be a number',
+        });
+      }
+
+      // Serve a cached quiz when one exists. Previously every quiz page load
+      // triggered a fresh (paid) Gemini call.
+      if (!regenerate) {
+        const cached = await QuizModel.findLatestByVideo(videoIdNum);
+        if (cached) {
+          logger.info(`Serving cached quiz ${cached.id} for video ${videoIdNum}`);
+          return res.json({
+            success: true,
+            data: {
+              quizId: cached.id,
+              questions: cached.questions.map(toPublicQuestion),
+              cached: true,
+            },
+          });
+        }
+      }
 
       // Fetch transcript and summary
       const transcription = await TranscriptionModel.findByVideoId(videoIdNum);
@@ -71,15 +103,26 @@ export class AIController {
         summary.key_points
       );
 
+      // Persist the full quiz (including the answer key) server-side, along
+      // with what it cost to generate.
+      const quizId = await QuizModel.create(videoIdNum, quizData.questions, {
+        tokensUsed: quizData.tokens_used,
+        modelUsed: geminiModel,
+      });
+
       logger.info(
-        `Quiz generated for video ${videoIdNum}. Questions: ${quizData.questions.length}, Tokens: ${quizData.tokens_used}`
+        `Quiz ${quizId} generated for video ${videoIdNum}. Questions: ${quizData.questions.length}, Tokens: ${quizData.tokens_used}`
       );
 
       res.json({
         success: true,
         data: {
-          questions: quizData.questions,
+          quizId,
+          // correctAnswer and explanation are deliberately withheld until the
+          // user submits — see validateQuiz.
+          questions: quizData.questions.map(toPublicQuestion),
           tokensUsed: quizData.tokens_used,
+          cached: false,
         },
       });
     } catch (error: any) {
@@ -94,47 +137,49 @@ export class AIController {
 
   static async validateQuiz(req: Request, res: Response<ApiResponse>) {
     try {
-      const { questions, userAnswers } = req.body;
+      const { quizId, userAnswers } = req.body;
 
-      if (!questions || !userAnswers) {
+      if (!quizId || !userAnswers) {
         return res.status(400).json({
           success: false,
-          error: 'Questions and user answers are required',
+          error: 'quizId and userAnswers are required',
         });
       }
 
-      if (!Array.isArray(questions) || !Array.isArray(userAnswers)) {
+      if (!Array.isArray(userAnswers)) {
         return res.status(400).json({
           success: false,
-          error: 'Questions and userAnswers must be arrays',
+          error: 'userAnswers must be an array',
         });
       }
 
-      if (questions.length !== 5 || userAnswers.length !== 5) {
-        return res.status(400).json({
+      // The answer key is loaded from the database, never from the request
+      // body. A client can no longer submit fabricated questions to grade
+      // itself against.
+      const quiz = await QuizModel.findById(parseInt(quizId));
+
+      if (!quiz) {
+        return res.status(404).json({
           success: false,
-          error: 'Quiz must have exactly 5 questions and answers',
+          error: 'Quiz not found',
         });
       }
 
-      // Validate answers using Gemini
-      const validationResult = await GeminiQuizService.validateAnswers(
-        questions,
+      if (userAnswers.length !== quiz.questions.length) {
+        return res.status(400).json({
+          success: false,
+          error: `Expected ${quiz.questions.length} answers, received ${userAnswers.length}`,
+        });
+      }
+
+      const validationResult = GeminiQuizService.gradeAnswers(
+        quiz.questions,
         userAnswers
-      );
-
-      logger.info(
-        `Quiz validated. Score: ${validationResult.score}/${validationResult.totalQuestions}, Tokens: ${validationResult.tokens_used}`
       );
 
       res.json({
         success: true,
-        data: {
-          results: validationResult.results,
-          score: validationResult.score,
-          totalQuestions: validationResult.totalQuestions,
-          percentageScore: validationResult.percentageScore,
-        },
+        data: validationResult,
       });
     } catch (error: any) {
       logger.error('Quiz validation error:', error);
@@ -165,9 +210,18 @@ export class AIController {
         });
       }
 
-      // Optional conversation history for context
+      if (question.length > MAX_CHAT_QUESTION_CHARS) {
+        return res.status(400).json({
+          success: false,
+          error: `Question must be ${MAX_CHAT_QUESTION_CHARS} characters or fewer`,
+        });
+      }
+
+      // Optional conversation history for context. Capped to the most recent
+      // turns: the client previously controlled how much history was replayed
+      // into the prompt, and therefore how many tokens each request cost.
       const history = Array.isArray(conversationHistory)
-        ? conversationHistory
+        ? conversationHistory.slice(-MAX_CHAT_HISTORY_MESSAGES)
         : [];
 
       // Get chat response from Gemini

@@ -4,9 +4,11 @@ export interface JobSuggestion {
   blurb: string;
 }
 
-export interface JobSuggestionWithStatus extends JobSuggestion {
-  status: 'active' | 'unavailable';
-}
+/*
+ * `JobSuggestionWithStatus` was removed along with the availability check.
+ * See the note in history.controller.ts: the status could not be determined
+ * reliably, and a wrong badge is worse than none.
+ */
 
 export interface GeminiJobResponse {
   jobs: JobSuggestion[];

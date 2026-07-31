@@ -7,6 +7,7 @@ import { JobSuggestion } from '../types/job.types';
 export interface QuizAttemptCreateData {
   user_id: number;
   video_id: number;
+  quiz_id?: number | null;
   questions: Question[];
   results: QuizResult[];
   score: number;
@@ -17,11 +18,12 @@ export interface QuizAttemptCreateData {
 export class QuizAttemptModel {
   static async create(data: QuizAttemptCreateData): Promise<number> {
     const [result] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO quiz_attempts (user_id, video_id, questions, results, score, total_questions, percentage_score)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO quiz_attempts (user_id, video_id, quiz_id, questions, results, score, total_questions, percentage_score)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.user_id,
         data.video_id,
+        data.quiz_id ?? null,
         JSON.stringify(data.questions),
         JSON.stringify(data.results),
         data.score,

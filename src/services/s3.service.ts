@@ -8,6 +8,14 @@ import fs from 'fs/promises';
 import { s3Client, s3BucketName, s3VideoPrefix } from '../config/aws';
 import logger from '../utils/logger';
 
+const TWELVE_HOURS_IN_SECONDS = 12 * 60 * 60;
+const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60; // AWS SigV4 hard limit
+
+const S3_URL_EXPIRY_SECONDS = Math.min(
+  parseInt(process.env.S3_URL_EXPIRY_SECONDS || String(TWELVE_HOURS_IN_SECONDS)),
+  SEVEN_DAYS_IN_SECONDS
+);
+
 export class S3Service {
   static async uploadVideo(
     filePath: string,
@@ -54,7 +62,20 @@ export class S3Service {
     }
   }
 
-  static async getPresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+  /**
+   * Playback URLs are signed once when a page loads and are never refreshed
+   * mid-session, so a short lifetime meant S3 started returning
+   * "403 AccessDenied — Request has expired" on any tab left open past the
+   * deadline (and after a hot reload in local dev).
+   *
+   * 12 hours comfortably outlives a viewing session. The frontend also
+   * re-fetches on a playback error, so this is a convenience bound rather than
+   * the only line of defence. Note AWS caps SigV4 presigned URLs at 7 days.
+   */
+  static async getPresignedUrl(
+    key: string,
+    expiresIn: number = S3_URL_EXPIRY_SECONDS
+  ): Promise<string> {
     try {
       const command = new GetObjectCommand({
         Bucket: s3BucketName,
