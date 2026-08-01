@@ -3,10 +3,11 @@ import { VideoModel } from '../models/Video';
 import { ApiResponse } from '../types';
 import logger from '../utils/logger';
 import { GeminiQuizService } from '../services/gemini-quiz.service';
-import { GeminiChatService } from '../services/gemini-chat.service';
+import { GeminiChatService, VideoContext } from '../services/gemini-chat.service';
 import { TranscriptionModel } from '../models/Transcription';
 import { SummaryModel } from '../models/Summary';
 import { QuizModel } from '../models/Quiz';
+import { ChatMessageModel } from '../models/ChatMessage';
 import { toPublicQuestion } from '../types/quiz.types';
 import { geminiModel } from '../config/gemini';
 
@@ -192,9 +193,75 @@ export class AIController {
     }
   }
 
+  /**
+   * Returns the stored conversation so a refresh doesn't lose it.
+   * `videoId` selects a lesson thread; omitting it returns the global one.
+   */
+  static async getChatThread(req: Request, res: Response<ApiResponse>) {
+    try {
+      const userId = req.session.userId!;
+      const videoId = parseVideoIdParam(req.query.videoId);
+
+      if (videoId === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid video ID',
+        });
+      }
+
+      const messages = await ChatMessageModel.findThread(
+        userId,
+        videoId,
+        MAX_CHAT_HISTORY_MESSAGES
+      );
+
+      res.json({
+        success: true,
+        data: messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+          createdAt: m.created_at,
+        })),
+      });
+    } catch (error: any) {
+      logger.error('Get chat thread error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  /** Clears a thread. Without this, "clear chat" would only hide the messages
+   *  locally and they would reappear on the next page load. */
+  static async clearChatThread(req: Request, res: Response<ApiResponse>) {
+    try {
+      const userId = req.session.userId!;
+      const videoId = parseVideoIdParam(req.query.videoId);
+
+      if (videoId === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid video ID',
+        });
+      }
+
+      await ChatMessageModel.deleteThread(userId, videoId);
+
+      res.json({ success: true, data: { cleared: true } });
+    } catch (error: any) {
+      logger.error('Clear chat thread error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
   static async chat(req: Request, res: Response<ApiResponse>) {
     try {
-      const { question, conversationHistory } = req.body;
+      const userId = req.session.userId!;
+      const { question, videoId: rawVideoId } = req.body;
 
       if (!question || typeof question !== 'string') {
         return res.status(400).json({
@@ -217,19 +284,79 @@ export class AIController {
         });
       }
 
-      // Optional conversation history for context. Capped to the most recent
-      // turns: the client previously controlled how much history was replayed
-      // into the prompt, and therefore how many tokens each request cost.
-      const history = Array.isArray(conversationHistory)
-        ? conversationHistory.slice(-MAX_CHAT_HISTORY_MESSAGES)
-        : [];
+      const videoId = parseVideoIdParam(rawVideoId);
+      if (videoId === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid video ID',
+        });
+      }
 
-      // Get chat response from Gemini
-      const chatResult = await GeminiChatService.chat(question, history);
-
-      logger.info(
-        `Chat response generated. Tokens used: ${chatResult.tokens_used}`
+      // History comes from the database keyed on the session user, never from
+      // the request body. The client used to supply it, which meant it also
+      // controlled what the model was told had already been said.
+      const stored = await ChatMessageModel.findThread(
+        userId,
+        videoId,
+        MAX_CHAT_HISTORY_MESSAGES
       );
+      const history = stored.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      // When the question is about a specific lesson, ground the answer in that
+      // lesson's transcript rather than the model's general knowledge.
+      let videoContext: VideoContext | undefined;
+      if (videoId !== null) {
+        const video = await VideoModel.findById(videoId);
+        if (!video) {
+          return res.status(404).json({
+            success: false,
+            error: 'Video not found',
+          });
+        }
+
+        const transcription = await TranscriptionModel.findByVideoId(videoId);
+        if (!transcription) {
+          return res.status(409).json({
+            success: false,
+            error: 'This video has no transcript yet',
+            message:
+              'The lesson is still being processed. Please try again once the transcript is ready.',
+          });
+        }
+
+        const summary = await SummaryModel.findByVideoId(videoId);
+        videoContext = {
+          title: video.title,
+          transcript: transcription.transcript_text,
+          summary: summary?.summary_text,
+          keyPoints: summary?.key_points,
+          segments: transcription.segments,
+        };
+      }
+
+      const chatResult = await GeminiChatService.chat(
+        question,
+        history,
+        videoContext
+      );
+
+      // Persist both turns so the thread survives a refresh.
+      await ChatMessageModel.create({
+        user_id: userId,
+        video_id: videoId,
+        role: 'user',
+        content: question,
+      });
+      await ChatMessageModel.create({
+        user_id: userId,
+        video_id: videoId,
+        role: 'assistant',
+        content: chatResult.response,
+        tokens_used: chatResult.tokens_used,
+      });
 
       res.json({
         success: true,
@@ -248,6 +375,18 @@ export class AIController {
       });
     }
   }
+}
+
+/**
+ * `null` means the global thread, a number means a lesson thread, and
+ * `undefined` signals a malformed value the caller should reject — so an
+ * unparseable id can't silently fall through to the global conversation.
+ */
+function parseVideoIdParam(raw: unknown): number | null | undefined {
+  if (raw === undefined || raw === null || raw === '') return null;
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) return undefined;
+  return parsed;
 }
 
 export default AIController;

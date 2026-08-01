@@ -25,6 +25,27 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+/**
+ * Every chat turn is a paid Gemini call, and a grounded one ships the whole
+ * transcript as input — so this needs a tighter bound than the general limiter.
+ *
+ * Keyed on the session user rather than IP: chat requires auth, and IP keying
+ * would make everyone behind one office NAT share a single budget.
+ */
+export const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  keyGenerator: (req) => String(req.session?.userId ?? req.ip),
+  message: {
+    success: false,
+    error: 'Chat limit exceeded',
+    message: 'You have sent too many questions. Please wait a few minutes and try again.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+});
+
 export const uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // 10 uploads per hour

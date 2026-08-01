@@ -5,6 +5,7 @@ import { requireAuth } from '../middleware/auth';
 const router = Router();
 
 router.post('/watch', requireAuth, HistoryController.recordWatch);
+router.get('/watch/:videoId', requireAuth, HistoryController.getWatchProgress);
 router.post('/quiz-attempts', requireAuth, HistoryController.recordQuizAttempt);
 router.get('/', requireAuth, HistoryController.getHistory);
 router.get('/quiz-attempts/:attemptId', requireAuth, HistoryController.getQuizAttemptDetail);

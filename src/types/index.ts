@@ -52,11 +52,19 @@ export interface TranscriptSegment {
   text: string;
 }
 
+/** A chapter marker: where a topic starts, in seconds. */
+export interface SummarySection {
+  start: number;
+  title: string;
+}
+
 export interface Summary {
   id: number;
   video_id: number;
   summary_text: string;
   key_points: string[];
+  /** Null for summaries generated before chapter markers were added. */
+  sections: SummarySection[] | null;
   model_used: string | null;
   tokens_used: number | null;
   created_at: Date;
@@ -74,6 +82,8 @@ export interface VideoWatch {
   id: number;
   user_id: number;
   video_id: number;
+  position_seconds: number;
+  completed: boolean;
   watched_at: Date;
   updated_at: Date;
 }

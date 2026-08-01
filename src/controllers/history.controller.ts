@@ -43,7 +43,7 @@ export class HistoryController {
   static async recordWatch(req: Request, res: Response<ApiResponse>) {
     try {
       const userId = req.session.userId!;
-      const { videoId } = req.body;
+      const { videoId, positionSeconds, completed } = req.body;
 
       if (!videoId) {
         return res.status(400).json({
@@ -62,7 +62,14 @@ export class HistoryController {
         });
       }
 
-      await VideoWatchModel.upsert(userId, videoIdNum);
+      // Clamp to the known duration so a bad client can't store a position past
+      // the end of the video (which would make it un-resumable).
+      const rawPosition = Number(positionSeconds);
+      const position = Number.isFinite(rawPosition) && rawPosition > 0
+        ? Math.min(rawPosition, video.duration ?? rawPosition)
+        : 0;
+
+      await VideoWatchModel.upsert(userId, videoIdNum, position, completed === true);
 
       res.json({
         success: true,
@@ -70,6 +77,42 @@ export class HistoryController {
       });
     } catch (error: any) {
       logger.error('Record watch error:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  /**
+   * Where the learner left off in a single video, so the detail page can resume
+   * without pulling their whole history.
+   */
+  static async getWatchProgress(req: Request, res: Response<ApiResponse>) {
+    try {
+      const userId = req.session.userId!;
+      const videoId = parseInt(req.params.videoId);
+
+      if (Number.isNaN(videoId)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid video ID',
+        });
+      }
+
+      const watch = await VideoWatchModel.findOne(userId, videoId);
+
+      res.json({
+        success: true,
+        data: {
+          positionSeconds: watch?.position_seconds ?? 0,
+          // MySQL returns BOOLEAN columns as 0/1; coerce so the JSON matches
+          // the boolean the client's type declares.
+          completed: Boolean(watch?.completed),
+        },
+      });
+    } catch (error: any) {
+      logger.error('Get watch progress error:', error);
       res.status(500).json({
         success: false,
         error: error.message,
@@ -216,6 +259,8 @@ export class HistoryController {
           return {
             video,
             watchedAt: watch?.watched_at ?? null,
+            positionSeconds: watch?.position_seconds ?? 0,
+            completed: Boolean(watch?.completed),
             attempts: videoAttempts,
           };
         })

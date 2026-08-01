@@ -33,12 +33,18 @@ export interface UserAnswer {
 /**
  * Per-question outcome, returned only after submission.
  * `correctAnswer` is the option *text*, not the index.
+ *
+ * `selectedOption` is the index the learner picked, or -1 if they skipped the
+ * question. It is persisted so the review screen can still show what they chose
+ * after they navigate away — attempts recorded before this was added lack the
+ * field, hence optional.
  */
 export interface QuizResult {
   questionId: number;
   isCorrect: boolean;
   explanation: string;
   correctAnswer: string;
+  selectedOption?: number;
 }
 
 export interface ValidationResponse {

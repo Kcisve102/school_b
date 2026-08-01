@@ -1,11 +1,12 @@
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import pool from '../config/database';
-import { Summary } from '../types';
+import { Summary, SummarySection } from '../types';
 
 export interface SummaryCreateData {
   video_id: number;
   summary_text: string;
   key_points: string[];
+  sections?: SummarySection[];
   model_used?: string;
   tokens_used?: number;
 }
@@ -13,12 +14,13 @@ export interface SummaryCreateData {
 export class SummaryModel {
   static async create(data: SummaryCreateData): Promise<number> {
     const [result] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO summaries (video_id, summary_text, key_points, model_used, tokens_used)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO summaries (video_id, summary_text, key_points, sections, model_used, tokens_used)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         data.video_id,
         data.summary_text,
         JSON.stringify(data.key_points),
+        data.sections ? JSON.stringify(data.sections) : null,
         data.model_used || null,
         data.tokens_used || null,
       ]
@@ -38,6 +40,8 @@ export class SummaryModel {
     return {
       ...row,
       key_points: typeof row.key_points === 'string' ? JSON.parse(row.key_points) : row.key_points,
+      // Null for summaries generated before sections existed.
+      sections: typeof row.sections === 'string' ? JSON.parse(row.sections) : row.sections ?? null,
     } as Summary;
   }
 

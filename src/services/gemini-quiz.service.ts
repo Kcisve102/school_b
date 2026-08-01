@@ -180,6 +180,7 @@ Ensure questions are clear, specific, and directly related to the video content.
         isCorrect: selectedOption === question.correctAnswer,
         explanation: question.explanation,
         correctAnswer: question.options[question.correctAnswer] ?? '',
+        selectedOption,
       };
     });
 

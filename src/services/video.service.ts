@@ -11,6 +11,7 @@ import { GeminiTranscriptionService } from './gemini-transcription.service';
 import { GeminiSummaryService } from './gemini-summary.service';
 import { YouTubeService } from './youtube.service';
 import { geminiModel } from '../config/gemini';
+import { TranscriptSegment } from '../types';
 import logger from '../utils/logger';
 import { deleteFile, ensureDirectoryExists } from '../utils/helpers';
 
@@ -191,7 +192,12 @@ export class VideoService {
       await deleteFile(audioPath);
       await deleteFile(tempVideoPath);
 
-      this.processSummarizationAsync(videoId, transcriptionResult.text, io);
+      this.processSummarizationAsync(
+        videoId,
+        transcriptionResult.text,
+        transcriptionResult.segments,
+        io
+      );
     } catch (error: any) {
       logger.error(`Transcription failed for video ID ${videoId}:`, error);
       await VideoModel.updateStatus(videoId, 'transcription_status', 'failed');
@@ -207,6 +213,7 @@ export class VideoService {
   private static async processSummarizationAsync(
     videoId: number,
     transcript: string,
+    segments: TranscriptSegment[] = [],
     io?: any
   ): Promise<void> {
     try {
@@ -217,12 +224,13 @@ export class VideoService {
         io.emit('video:summary:progress', { videoId });
       }
 
-      const summaryResult = await GeminiSummaryService.summarize(transcript);
+      const summaryResult = await GeminiSummaryService.summarize(transcript, segments);
 
       await SummaryModel.create({
         video_id: videoId,
         summary_text: summaryResult.summary,
         key_points: summaryResult.key_points,
+        sections: summaryResult.sections,
         model_used: geminiModel,
         tokens_used: summaryResult.tokens_used,
       });
