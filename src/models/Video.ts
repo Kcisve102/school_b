@@ -104,6 +104,14 @@ export class VideoModel {
     return rows[0].total;
   }
 
+  static async countByCategory(category: string): Promise<number> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT COUNT(*) as total FROM videos WHERE category = ?',
+      [category]
+    );
+    return rows[0].total;
+  }
+
   static async findByCategory(category: string, limit: number = 50, offset: number = 0): Promise<Video[]> {
     const [rows] = await pool.execute<RowDataPacket[]>(
       'SELECT * FROM videos WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',

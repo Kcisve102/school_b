@@ -11,11 +11,15 @@ export class VideoController {
       const limit = parseInt(req.query.limit as string) || 50;
       const offset = parseInt(req.query.offset as string) || 0;
 
-      const videos = await VideoService.getAllVideos(limit, offset);
+      const [videos, total] = await Promise.all([
+        VideoService.getAllVideos(limit, offset),
+        VideoService.countVideos(),
+      ]);
 
       res.json({
         success: true,
         data: videos,
+        total,
       });
     } catch (error: any) {
       logger.error('Get videos error:', error);
@@ -114,11 +118,15 @@ export class VideoController {
       // Calling VideoModel directly returned the raw stored s3_url, which
       // points at a private bucket and always 403s — videos opened from the
       // category page could never play.
-      const videos = await VideoService.getVideosByCategory(category, limit, offset);
+      const [videos, total] = await Promise.all([
+        VideoService.getVideosByCategory(category, limit, offset),
+        VideoService.countVideosByCategory(category),
+      ]);
 
       res.json({
         success: true,
         data: videos,
+        total,
       });
     } catch (error: any) {
       logger.error('Get videos by category error:', error);

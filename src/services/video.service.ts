@@ -271,6 +271,14 @@ export class VideoService {
     );
   }
 
+  static async countVideos(): Promise<number> {
+    return VideoModel.count();
+  }
+
+  static async countVideosByCategory(category: string): Promise<number> {
+    return VideoModel.countByCategory(category);
+  }
+
   static async getVideosByCategory(
     category: string,
     limit: number = 50,
