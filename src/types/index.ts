@@ -1,5 +1,12 @@
 import { Question, QuizResult } from './quiz.types';
 import { JobSuggestion } from './job.types';
+import {
+  ResumeExperience,
+  ResumeEducation,
+  ResumeProject,
+  ResumeCertification,
+  ProfileLink,
+} from './profile.types';
 
 export interface User {
   id: number;
@@ -122,6 +129,18 @@ export interface CareerProfile {
   summary: string;
   skills: string[];
   job_titles: string[];
+  /**
+   * Learner-supplied resume sections. Empty arrays / nulls for a profile that
+   * predates the intake, or for a learner who chose not to answer — every one
+   * of these is optional and the resume renders without them.
+   */
+  experience: ResumeExperience[];
+  education: ResumeEducation[];
+  projects: ResumeProject[];
+  certifications: ResumeCertification[];
+  phone: string | null;
+  city: string | null;
+  links: ProfileLink[];
   /** Null once the source video or attempt is deleted (ON DELETE SET NULL). */
   source_video_id: number | null;
   source_attempt_id: number | null;

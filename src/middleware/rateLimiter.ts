@@ -69,6 +69,31 @@ export const profileDraftLimiter = rateLimit({
   validate: false,
 });
 
+/**
+ * The resume intake is two paid Gemini calls — one to plan the questions, one
+ * to structure the answers — so it gets its own budget rather than sharing the
+ * draft limiter.
+ *
+ * Both intake routes share this single limiter on purpose: they are two halves
+ * of one user action, and separate limiters would let someone burn a full
+ * budget of structuring calls without ever planning a question. Ten completed
+ * intakes per 15 minutes is far more than an honest learner needs.
+ */
+export const profileIntakeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  keyGenerator: (req) => String(req.session?.userId ?? req.ip),
+  message: {
+    success: false,
+    error: 'Resume intake limit exceeded',
+    message:
+      'You have made too many resume intake requests. Please wait a few minutes and try again.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+});
+
 export const uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // 10 uploads per hour
