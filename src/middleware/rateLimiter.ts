@@ -46,6 +46,29 @@ export const chatLimiter = rateLimit({
   validate: false,
 });
 
+/**
+ * Drafting a career profile is a paid Gemini call, so the general limiter
+ * (100 requests / 15 min) is far too loose for it.
+ *
+ * Keyed on the session user rather than IP, for the same reason as chatLimiter:
+ * this route requires auth, and IP keying would make everyone behind one office
+ * NAT share a single budget.
+ */
+export const profileDraftLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  keyGenerator: (req) => String(req.session?.userId ?? req.ip),
+  message: {
+    success: false,
+    error: 'Profile draft limit exceeded',
+    message:
+      'You have requested too many profile drafts. Please wait a few minutes and try again.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+});
+
 export const uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // 10 uploads per hour

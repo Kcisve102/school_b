@@ -18,6 +18,7 @@ import videoRoutes from './routes/video.routes';
 import adminRoutes from './routes/admin.routes';
 import aiRoutes from './routes/ai.routes';
 import historyRoutes from './routes/history.routes';
+import profileRoutes from './routes/profile.routes';
 
 dotenv.config();
 
@@ -72,6 +73,7 @@ app.use('/api/videos', videoRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.use(errorHandler);
 

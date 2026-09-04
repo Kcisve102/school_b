@@ -114,3 +114,26 @@ export interface QuizAttemptDetail {
   jobSuggestions: JobSuggestion[] | null;
   createdAt: Date;
 }
+
+export interface CareerProfile {
+  id: number;
+  user_id: number;
+  headline: string;
+  summary: string;
+  skills: string[];
+  job_titles: string[];
+  /** Null once the source video or attempt is deleted (ON DELETE SET NULL). */
+  source_video_id: number | null;
+  source_attempt_id: number | null;
+  generated_language: string;
+  is_edited: boolean;
+  /**
+   * The last destination the learner clicked through to, and when. This records
+   * that a handoff was *initiated* only — no job board calls back to tell us
+   * whether an account was actually created.
+   */
+  last_handoff_platform: string | null;
+  last_handoff_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
