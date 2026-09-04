@@ -216,6 +216,93 @@ export class FreelancerOAuthService {
       full_description: true,
     });
   }
+
+  /**
+   * Freelancer's skill taxonomy, cached in memory.
+   *
+   * The list is ~3,500 entries and effectively static, so it is fetched once
+   * per process rather than on every recommendation.
+   */
+  private static skillIdCache: Map<string, { id: number; name: string }> | null = null;
+
+  static async skillNameToId(): Promise<Map<string, { id: number; name: string }>> {
+    if (this.skillIdCache) return this.skillIdCache;
+
+    const data = await this.publicGet<{ result?: Array<{ id: number; name: string }> }>(
+      '/api/projects/0.1/jobs/'
+    );
+    const map = new Map<string, { id: number; name: string }>();
+    for (const job of data.result ?? []) {
+      // Keyed lower-case for matching, but the taxonomy's own casing is kept
+      // for display — it writes "AI Animation", not "Ai Animation".
+      if (job?.name && job?.id) map.set(job.name.toLowerCase(), { id: job.id, name: job.name });
+    }
+    this.skillIdCache = map;
+    return map;
+  }
+
+  /**
+   * Resolve free-text skills from the generated profile onto Freelancer's
+   * fixed taxonomy.
+   *
+   * Exact match first, then a contains match, because Gemini writes "Video
+   * Editing" where the taxonomy has "Video Editing" but also writes
+   * "AI Animation" where only "Animation" exists.
+   */
+  static async resolveSkillIds(
+    skills: string[],
+    max = 6
+  ): Promise<Array<{ id: number; name: string }>> {
+    const map = await this.skillNameToId();
+    const ids: Array<{ id: number; name: string }> = [];
+
+    for (const raw of skills) {
+      const skill = raw.trim().toLowerCase();
+      if (!skill) continue;
+
+      let hit = map.get(skill);
+      if (!hit) {
+        for (const [name, candidate] of map) {
+          if (skill.includes(name) || name.includes(skill)) {
+            hit = candidate;
+            break;
+          }
+        }
+      }
+      if (hit && !ids.some((e) => e.id === hit!.id)) ids.push(hit);
+      if (ids.length >= max) break;
+    }
+
+    return ids;
+  }
+
+  /**
+   * Jobs matching a learner's skills.
+   *
+   * Filtered by skill id, not by free-text query: a text search for
+   * "Video Editing" returns finance and automation work, because the query
+   * matches anywhere in the description. Filtering on the taxonomy returns
+   * jobs actually tagged with the skill.
+   */
+  static async recommendedProjects(skills: string[], limit = 12) {
+    const matched = await this.resolveSkillIds(skills);
+    if (matched.length === 0) return { projects: [], matchedSkills: [] as string[] };
+
+    const data = await this.publicGet<{ result?: { projects?: unknown[] } }>(
+      '/api/projects/0.1/projects/active',
+      {
+        'jobs[]': matched.map((m) => String(m.id)),
+        limit,
+        job_details: true,
+        full_description: true,
+      }
+    );
+
+    return {
+      projects: data.result?.projects ?? [],
+      matchedSkills: matched.map((m) => m.name),
+    };
+  }
 }
 
 export default FreelancerOAuthService;

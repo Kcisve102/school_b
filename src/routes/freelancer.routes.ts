@@ -12,6 +12,7 @@ router.get('/projects', requireAuth, FreelancerController.searchProjects);
 // Public reads: browsing and reading jobs needs no Freelancer.com account, so
 // a learner can explore work in their own language before signing up.
 router.get('/browse', FreelancerController.searchProjectsPublic);
+router.get('/recommended', requireAuth, FreelancerController.getRecommended);
 router.get('/projects/:id', FreelancerController.getProject);
 
 export default router;

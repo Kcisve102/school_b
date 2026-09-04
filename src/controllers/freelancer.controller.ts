@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ApiResponse } from '../types';
 import FreelancerOAuthService from '../services/freelancer-oauth.service';
 import FreelancerConnection from '../models/FreelancerConnection';
+import CareerProfileModel from '../models/CareerProfile';
 import logger from '../utils/logger';
 
 const CLIENT_URL = process.env.CLIENT_URL || 'https://www.knowverd.com';
@@ -197,6 +198,43 @@ export class FreelancerController {
     } catch (error) {
       logger.error('Freelancer public project search failed', { error });
       return res.status(502).json({ success: false, error: 'Could not search projects' });
+    }
+  }
+
+  /**
+   * Real jobs matching the learner's own generated skills.
+   *
+   * Replaces the invented job cards that linked out to an Indeed keyword
+   * search: those described roles that might exist, these are live postings
+   * with a budget and a client. Needs a Knowverd login to know whose profile
+   * to read, but no Freelancer.com account.
+   *
+   * `skills` may also be passed explicitly, which is how the quiz result page
+   * asks for jobs matching one attempt rather than the whole profile.
+   */
+  static async getRecommended(req: Request, res: Response<ApiResponse>) {
+    try {
+      const explicit = String(req.query.skills || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      let skills = explicit;
+      if (skills.length === 0) {
+        const profile = await CareerProfileModel.findByUserId(req.session.userId!);
+        skills = Array.isArray(profile?.skills) ? profile!.skills : [];
+      }
+
+      if (skills.length === 0) {
+        return res.json({ success: true, data: { projects: [], matchedSkills: [] } });
+      }
+
+      const limit = Math.min(Number(req.query.limit) || 12, 50);
+      const data = await FreelancerOAuthService.recommendedProjects(skills, limit);
+      return res.json({ success: true, data });
+    } catch (error) {
+      logger.error('Freelancer recommendations failed', { error });
+      return res.status(502).json({ success: false, error: 'Could not load matching jobs' });
     }
   }
 }
