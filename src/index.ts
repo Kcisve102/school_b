@@ -19,6 +19,8 @@ import adminRoutes from './routes/admin.routes';
 import aiRoutes from './routes/ai.routes';
 import historyRoutes from './routes/history.routes';
 import profileRoutes from './routes/profile.routes';
+import freelancerRoutes from './routes/freelancer.routes';
+import { FreelancerController } from './controllers/freelancer.controller';
 
 dotenv.config();
 
@@ -74,6 +76,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/freelancer', freelancerRoutes);
+
+// Freelancer.com's registered redirect URI is https://www.knowverd.com/auth,
+// so the OAuth callback is mounted at the bare path, outside /api.
+app.get('/auth', FreelancerController.callback);
 
 app.use(errorHandler);
 

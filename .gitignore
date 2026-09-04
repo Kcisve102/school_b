@@ -35,3 +35,5 @@ coverage/
 
 /combined.log
 error.log
+# Local .env backups — never commit, they carry real credentials
+.env.bak.*

@@ -17,7 +17,12 @@ export interface GeminiCareerProfileResponse extends CareerProfileDraft {
 }
 
 /** The destinations a learner can hand their profile off to. */
-export type HandoffPlatform = 'indeed' | 'ziprecruiter' | 'glassdoor' | 'dice';
+export type HandoffPlatform =
+  | 'indeed'
+  | 'ziprecruiter'
+  | 'glassdoor'
+  | 'dice'
+  | 'freelancer';
 
 /**
  * Whitelist for `recordHandoff`. A client-supplied platform string is never
@@ -28,6 +33,9 @@ export const HANDOFF_PLATFORMS: readonly HandoffPlatform[] = [
   'ziprecruiter',
   'glassdoor',
   'dice',
+  // Unlike the others, Freelancer.com is a real OAuth connection rather than a
+  // click-through: its callback tells us the learner actually authorised us.
+  'freelancer',
 ];
 
 /**
