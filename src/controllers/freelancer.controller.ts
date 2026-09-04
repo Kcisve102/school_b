@@ -14,6 +14,7 @@ const backToApp = (res: Response, params: Record<string, string>) => {
   return res.redirect(url.toString());
 };
 
+
 export class FreelancerController {
   /** Whether this learner has connected their Freelancer.com account. */
   static async getStatus(req: Request, res: Response<ApiResponse>) {
@@ -63,18 +64,21 @@ export class FreelancerController {
   static async callback(req: Request, res: Response) {
     const { code, state, error } = req.query as Record<string, string | undefined>;
 
-    if (error) return backToApp(res, { freelancer: 'error', reason: error });
-    if (!code) return backToApp(res, { freelancer: 'error', reason: 'no_code' });
+    const done = (ok: boolean, reason?: string) =>
+      backToApp(res, ok ? { freelancer: 'connected' } : { freelancer: 'error', reason: reason! });
+
+    if (error) return done(false, error);
+    if (!code) return done(false, 'no_code');
 
     const expected = req.session.flnOAuthState;
     delete req.session.flnOAuthState;
     if (!state || !expected || state !== expected) {
       logger.warn('Freelancer OAuth state mismatch', { userId: req.session.userId });
-      return backToApp(res, { freelancer: 'error', reason: 'invalid_state' });
+      return done(false, 'invalid_state');
     }
 
     const userId = req.session.userId;
-    if (!userId) return backToApp(res, { freelancer: 'error', reason: 'not_logged_in' });
+    if (!userId) return done(false, 'not_logged_in');
 
     try {
       const tokens = await FreelancerOAuthService.exchangeCode(code);
@@ -102,10 +106,10 @@ export class FreelancerController {
       });
 
       logger.info('Freelancer account connected', { userId });
-      return backToApp(res, { freelancer: 'connected' });
+      return done(true);
     } catch (err) {
       logger.error('Freelancer OAuth callback failed', { userId, error: err });
-      return backToApp(res, { freelancer: 'error', reason: 'exchange_failed' });
+      return done(false, 'exchange_failed');
     }
   }
 
@@ -214,6 +218,16 @@ export class FreelancerController {
    */
   static async getRecommended(req: Request, res: Response<ApiResponse>) {
     try {
+      // Gated on the connection, though the underlying data is public: a
+      // learner who has unlinked should stop seeing jobs everywhere, not just
+      // on the tab they unlinked from.
+      const token = await FreelancerConnection.getAccessToken(req.session.userId!);
+      if (!token) {
+        return res
+          .status(409)
+          .json({ success: false, error: 'Freelancer.com account is not connected' });
+      }
+
       const explicit = String(req.query.skills || '')
         .split(',')
         .map((s) => s.trim())

@@ -44,6 +44,11 @@ export class FreelancerOAuthService {
     url.searchParams.set('scope', process.env.FLN_SCOPES || 'basic');
     url.searchParams.set('state', state);
 
+    // Force the account picker instead of silently reusing whatever
+    // freelancer.com session the browser already has. Without this, a learner
+    // signing in with a second account is handed the token for the first one.
+    url.searchParams.set('prompt', 'select_account consent');
+
     const advanced = process.env.FLN_ADVANCED_SCOPES;
     if (advanced) url.searchParams.set('advanced_scopes', advanced);
 
