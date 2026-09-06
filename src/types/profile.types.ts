@@ -22,6 +22,8 @@ export type HandoffPlatform =
   | 'ziprecruiter'
   | 'glassdoor'
   | 'dice'
+  | 'careerjet'
+  /** Retained for handoffs recorded before Freelancer.com was removed. */
   | 'freelancer';
 
 /**
@@ -33,8 +35,8 @@ export const HANDOFF_PLATFORMS: readonly HandoffPlatform[] = [
   'ziprecruiter',
   'glassdoor',
   'dice',
-  // Unlike the others, Freelancer.com is a real OAuth connection rather than a
-  // click-through: its callback tells us the learner actually authorised us.
+  'careerjet',
+  // Kept so rows written before Freelancer.com was removed still validate.
   'freelancer',
 ];
 
