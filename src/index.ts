@@ -19,7 +19,6 @@ import adminRoutes from './routes/admin.routes';
 import aiRoutes from './routes/ai.routes';
 import historyRoutes from './routes/history.routes';
 import profileRoutes from './routes/profile.routes';
-import careerjetRoutes from './routes/careerjet.routes';
 
 dotenv.config();
 
@@ -75,7 +74,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/careerjet', careerjetRoutes);
 
 app.use(errorHandler);
 

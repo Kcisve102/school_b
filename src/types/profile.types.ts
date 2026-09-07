@@ -22,8 +22,9 @@ export type HandoffPlatform =
   | 'ziprecruiter'
   | 'glassdoor'
   | 'dice'
+  /** Retained for handoffs recorded before these providers were removed:
+   *  the rows are already in MySQL and must still validate. */
   | 'careerjet'
-  /** Retained for handoffs recorded before Freelancer.com was removed. */
   | 'freelancer';
 
 /**
@@ -35,8 +36,9 @@ export const HANDOFF_PLATFORMS: readonly HandoffPlatform[] = [
   'ziprecruiter',
   'glassdoor',
   'dice',
+  // Kept so rows written before Careerjet and Freelancer.com were removed
+  // still validate.
   'careerjet',
-  // Kept so rows written before Freelancer.com was removed still validate.
   'freelancer',
 ];
 

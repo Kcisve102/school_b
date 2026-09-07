@@ -19,7 +19,7 @@ const jobSuggestionSchema = {
           },
           keywords: {
             type: Type.STRING,
-            description: 'Concise search keywords (job title + core skill) suitable for a job board search box',
+            description: 'Concise search keywords (job title + core skill) suitable for a job board search box. Do not include the word "remote" — the search URL applies that filter itself',
           },
           blurb: {
             type: Type.STRING,
@@ -40,6 +40,11 @@ export class GeminiJobService {
    * Generate 5 job suggestions based on video summary/key points.
    * Kept in English regardless of quiz/chat language, since keywords feed
    * directly into Indeed and Fiverr search URLs.
+   *
+   * Constrained to remote work: these learners generally cannot relocate or
+   * commute, so an on-site role is not an opportunity for them. The remote
+   * filter is applied twice over — here, so the suggested roles themselves are
+   * remote-capable, and again in the Indeed URL, which filters listings.
    */
   static async generateJobSuggestions(
     summary: string,
@@ -65,11 +70,13 @@ ${keyPoints.map((point, idx) => `${idx + 1}. ${point}`).join('\n')}
 
 CATEGORY: ${category || 'General'}
 
-Suggest EXACTLY 5 real-world job titles that someone who has learned this content could pursue or that are closely related to these skills.${exclusionClause}
+Suggest EXACTLY 5 real-world job titles that someone who has learned this content could pursue or that are closely related to these skills.
+
+IMPORTANT: every suggestion must be work that can be done REMOTELY, from home, over the internet. These learners often cannot relocate or commute, so a role requiring physical presence is useless to them. Never suggest a job that needs on-site attendance. If the video content is inherently hands-on, suggest the remote or online-delivered roles it still opens up — teaching, tutoring, consulting, content creation, support or quality review in that field.${exclusionClause}
 
 For each job provide:
 1. title - a realistic job title
-2. keywords - 2-4 concise search keywords (job title + core skill) suitable for pasting into a job board search box
+2. keywords - 2-4 concise search keywords (job title + core skill) suitable for pasting into a job board search box. Do NOT put the word "remote" in the keywords; the search link applies a remote filter of its own, and duplicating it there only narrows the text match
 3. blurb - 1-2 sentences on why this role connects to what they learned
 
 Write the response in English.`;
